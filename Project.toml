@@ -1,0 +1,8 @@
+name = "SimpleTrajectories"
+uuid = "61851690-748d-4a9f-baa4-52cf7b8d3972"
+authors = ["PierreBarrat <p.barrat@live.fr>"]
+version = "0.1.0"
+
+[deps]
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
