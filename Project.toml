@@ -1,4 +1,4 @@
-name = "SimpleTrajectories"
+name = "FrequencyTrajectories"
 uuid = "61851690-748d-4a9f-baa4-52cf7b8d3972"
 authors = ["PierreBarrat <p.barrat@live.fr>"]
 version = "0.1.0"
