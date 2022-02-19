@@ -12,7 +12,7 @@ end
 	final_state :: Symbol = :missing # :lost, :fixed, :missing
 	#
 	# index where freqbin is reached
-	timetofreq :: Dict{FrequencyBin, T}  = Dict{ST.FrequencyBin, eltype(t)}()
+	timetofreq :: Dict{FrequencyBin, T}  = Dict{FT.FrequencyBin, eltype(t)}()
 	ϕpos :: Vector{Union{Missing, Float64}} = ones(Missing, 0) # contribution of the position to fitness
 	ϕgenotype :: Vector{Union{Missing, Float64}} = ones(Missing, 0) # average fitness of genotypes carying this mutation
 end
