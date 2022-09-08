@@ -180,3 +180,88 @@ end
 function fixation_probability(trajectories, f, df, ϕmin)
 	return fixation_probability(trajectories, FrequencyBin(f, df), ϕmin)
 end
+
+##########################################################################################
+######################################### Misc. ##########################################
+##########################################################################################
+
+function StatsBase.mean(trajectories::Vector{<:Trajectory}, fb::FrequencyBin)
+	T = filter!(trajectories, fb)
+
+	# Constructing grid
+	tmin = findmin(x -> x.t[1] - x.time_at_bin[fb], T)[1]
+	tmax = findmax(x -> x.t[end] - x.time_at_bin[fb], T)[1]
+	L = findmax(length, T)[1]
+	tgrid = range(tmin, tmax, L)
+	xgrid = zeros(Float64, L)
+	Zs = zeros(Int, L)
+
+	# Interpolating and computing values on grid
+	for traj in T
+		t0 = traj.time_at_bin[fb]
+		itp = LinearInterpolation(traj.t .- t0, traj.f)
+		for (i, t) in enumerate(tgrid)
+			if traj.t[1] - t0 <= t <= traj.t[end] - t0
+				xgrid[i] += itp(t)
+			elseif t < traj.t[1] - t0
+				xgrid[i] += 0.
+			elseif t > traj.t[end] - t0
+				xgrid[i] += if traj.final_state == :fixed
+					1.
+				elseif traj.final_state == :lost
+					0.
+				else
+					traj.f[end]
+				end
+			end
+			Zs[i] += 1
+		end
+	end
+
+	return xgrid ./ Zs, tgrid, Zs
+end
+
+function StatsBase.mean(T::Vector{<:Trajectory})
+	# Constructing grid
+	tmin = findmin(x -> x.t[1], T)[1]
+	tmax = findmax(x -> x.t[end], T)[1]
+	L = findmax(length, T)[1]
+	tgrid = range(tmin, tmax, L)
+	xgrid = zeros(Float64, L)
+	Zs = zeros(Int, L)
+
+	# Interpolating and computing values on grid
+	for traj in T
+		itp = LinearInterpolation(traj.t, traj.f)
+		for (i, t) in enumerate(tgrid)
+			if traj.t[1] <= t <= traj.t[end]
+				xgrid[i] += itp(t)
+			elseif t < traj.t[1]
+				xgrid[i] += 0.
+			elseif t > traj.t[end]
+				xgrid[i] += if traj.final_state == :fixed
+					1.
+				elseif traj.final_state == :lost
+					0.
+				else
+					traj.f[end]
+				end
+			end
+			Zs[i] += 1
+		end
+	end
+
+	return xgrid ./ Zs, tgrid, Zs
+end
+
+function mean_freq_at_bin!(trajectories::Vector{Trajectory}, fb::FrequencyBin)
+	f = 0.
+	Z = 0
+	for T in trajectories
+		if inbin!(T, fb)
+			f += T.freq_at_bin[fb]
+			Z += 1
+		end
+	end
+	return f/Z
+end

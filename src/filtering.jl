@@ -2,12 +2,13 @@
 	inbin!(traj::Trajectory, fb::FrequencyBin)
 
 Determine whether `traj` goes through the bin `fb` at any time point.
-Set the `timetofreq` field of `traj` accordingly.
+Set the `time_at_bin` field of `traj` accordingly.
 """
 function inbin!(traj::Trajectory, fb::FrequencyBin)
 	for (t,f) in traj
 		if in(f, fb)
-			traj.timetofreq[fb] = t
+			traj.freq_at_bin[fb] = f
+			traj.time_at_bin[fb] = t
 			return true
 		end
 	end
@@ -33,13 +34,13 @@ function filter!(trajectories::Vector{Trajectory}, fb::FrequencyBin)
 end
 filter!(trajectories, f, df) = filter!(trajectories, FrequencyBin(f, df))
 
-"""
-	filter(f::Function, trajectories::Vector{Trajectory})
-"""
-function filter(f::Function, trajectories::Vector{Trajectory})
-	idx = findall(f, trajectories)
-	return trajectories[idx]
-end
+# """
+# 	filter(f::Function, trajectories::Vector{Trajectory})
+# """
+# function filter(f::Function, trajectories::Vector{Trajectory})
+# 	idx = findall(f, trajectories)
+# 	return trajectories[idx]
+# end
 """
 	filter(trajectories::Vector{Trajectory}, fb::FrequencyBin)
 """

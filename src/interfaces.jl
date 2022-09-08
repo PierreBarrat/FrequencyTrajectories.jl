@@ -13,7 +13,8 @@ Base.isless(x::FrequencyBin, y::FrequencyBin) = isless(x.f, y.f)
 	return traj.t, traj.f
 end
 @recipe function f(traj::Trajectory, fb::FrequencyBin)
-	if haskey(traj.timetofreq, fb)
+	inbin!(traj, fb)
+	if haskey(traj.time_at_bin, fb)
 		if traj.final_state == :lost
 			linecolor --> :blue
 		elseif traj.final_state == :fixed
@@ -22,10 +23,16 @@ end
 			linecolor --> :black
 		end
 		label --> ""
-		t0 = traj.timetofreq[fb]
+		t0 = traj.time_at_bin[fb]
 		return traj.t .- t0, traj.f
 	else
 		label --> ""
 		return ()
 	end
+end
+
+@recipe function f(ts, fb::FrequencyBin)
+	label --> ""
+	line --> (:black)
+	return [ts, ts], [[fb.f + fb.df, fb.f + fb.df], [fb.f - fb.df, fb.f - fb.df]]
 end
