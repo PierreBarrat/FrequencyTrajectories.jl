@@ -187,12 +187,13 @@ end
 
 function StatsBase.mean(trajectories::Vector{<:Trajectory}, fb::FrequencyBin)
 	T = filter!(trajectories, fb)
+	isempty(T) && return Float64[], Float64[], Int[]
 
 	# Constructing grid
 	tmin = findmin(x -> x.t[1] - x.time_at_bin[fb], T)[1]
 	tmax = findmax(x -> x.t[end] - x.time_at_bin[fb], T)[1]
 	L = findmax(length, T)[1]
-	tgrid = range(tmin, tmax, L)
+	tgrid = collect(range(tmin, tmax, L))
 	xgrid = zeros(Float64, L)
 	Zs = zeros(Int, L)
 

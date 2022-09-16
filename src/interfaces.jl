@@ -27,7 +27,7 @@ end
 		return traj.t .- t0, traj.f
 	else
 		label --> ""
-		return ()
+		return Float64[], Float64[]
 	end
 end
 
