@@ -1,5 +1,7 @@
 module FrequencyTrajectories
 
+using Chain
+using DataFrames
 using Interpolations
 using Parameters
 using RecipesBase
@@ -18,6 +20,7 @@ include("objects.jl")
 include("interfaces.jl")
 include("methods.jl")
 include("filtering.jl")
+include("io.jl")
 
 const FT = FrequencyTrajectories
 
