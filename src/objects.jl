@@ -23,6 +23,4 @@ end
 fixed(T::Trajectory) = (T.final_state == :fixed)
 fixes(T::Trajectory) = fixed(T)
 
-duration(T::Trajectory) = T.t[end] - T.t[1]
-
 

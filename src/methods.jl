@@ -78,7 +78,6 @@ function Trajectory(
 		else
 			:missing
 		end
-
 		traj = Trajectory(;
 			t = t * time_scaling,
 			f = copy(X[t]),
@@ -155,7 +154,7 @@ end
 
 Compute fraction of trajectories `T` for which `f(T)` is true and that fix.
 """
-function fixation_probability(f::Function, trajectories::Vector{Trajectory})
+function fixation_probability(f, trajectories::AbstractVector{<:Trajectory})
 	nlost = count(T -> f(T) && T.final_state == :lost, trajectories)
 	nfix = count(T -> f(T) && T.final_state == :fixed, trajectories)
 	return nfix / (nfix + nlost)
@@ -165,7 +164,7 @@ end
 	fixation_probability(trajectories::Vector{Trajectory}, fb::FrequencyBin)
 	fixation_probability(trajectories, f, df)
 """
-function fixation_probability(trajectories::Vector{Trajectory}, fb::FrequencyBin)
+function fixation_probability(trajectories, fb::FrequencyBin)
 	return fixation_probability(T -> inbin(T, fb), trajectories)
 end
 fixation_probability(trajectories, f, df) = fixation_probability(trajectories, FrequencyBin(f, df))
@@ -185,17 +184,19 @@ end
 ######################################### Misc. ##########################################
 ##########################################################################################
 
-function StatsBase.mean(trajectories::Vector{<:Trajectory}, fb::FrequencyBin)
-	T = filter!(trajectories, fb)
+function StatsBase.mean(trajectories::Vector{<:Trajectory}, fb::FrequencyBin; kwargs...)
+	T = filter(x -> inbin!(x, fb; kwargs...), trajectories)
 	isempty(T) && return Float64[], Float64[], Int[]
 
 	# Constructing grid
 	tmin = findmin(x -> x.t[1] - x.time_at_bin[fb], T)[1]
 	tmax = findmax(x -> x.t[end] - x.time_at_bin[fb], T)[1]
 	L = findmax(length, T)[1]
-	tgrid = collect(range(tmin, tmax, L))
-	xgrid = zeros(Float64, L)
-	Zs = zeros(Int, L)
+
+	K = 50
+	tgrid = collect(range(tmin, tmax, K*L))
+	xgrid = zeros(Float64, K*L)
+	Zs = zeros(Int, K*L)
 
 	# Interpolating and computing values on grid
 	for traj in T
@@ -266,3 +267,7 @@ function mean_freq_at_bin!(trajectories::Vector{Trajectory}, fb::FrequencyBin)
 	end
 	return f/Z
 end
+
+
+
+duration(T::Trajectory) = T.t[end] - T.t[1]
