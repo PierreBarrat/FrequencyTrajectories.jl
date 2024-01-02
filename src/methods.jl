@@ -184,7 +184,10 @@ end
 ######################################### Misc. ##########################################
 ##########################################################################################
 
-function StatsBase.mean(trajectories::Vector{<:Trajectory}, fb::FrequencyBin; kwargs...)
+function StatsBase.mean(
+    trajectories::Vector{<:Trajectory}, fb::FrequencyBin;
+    K=min(length(trajectories), 50), kwargs...,
+)
 	T = filter(x -> inbin!(x, fb; kwargs...), trajectories)
 	isempty(T) && return Float64[], Float64[], Int[]
 
@@ -193,10 +196,10 @@ function StatsBase.mean(trajectories::Vector{<:Trajectory}, fb::FrequencyBin; kw
 	tmax = findmax(x -> x.t[end] - x.time_at_bin[fb], T)[1]
 	L = findmax(length, T)[1]
 
-	K = 50
-	tgrid = collect(range(tmin, tmax, K*L))
-	xgrid = zeros(Float64, K*L)
-	Zs = zeros(Int, K*L)
+    grid_len = floor(K*L) |> Int
+	tgrid = collect(range(tmin, tmax, grid_len))
+	xgrid = zeros(Float64, grid_len)
+	Zs = zeros(Int, grid_len)
 
 	# Interpolating and computing values on grid
 	for traj in T
